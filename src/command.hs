@@ -22,21 +22,20 @@ executeCmd :: String -> SudokuBoard -> IO (SudokuBoard, Bool)
 executeCmd cmd sudokuBoard
     | cmd == "move"  = executeCmdMove sudokuBoard [] [] "Please indicate the location and value."
     | cmd == "save"  = executeCmdSave sudokuBoard
-    | cmd == "load"  = executeCmdLoad sudokuBoard  
+    | cmd == "load"  = do executeCmdLoad; return (sudokuBoard, False)
     | cmd == "quit"  = executeCmdQuit sudokuBoard
-    | cmd == "new"   = executeCmdNew sudokuBoard
+    | cmd == "new"   = executeCmdNew
     | cmd == "solve" = executeCmdSolve sudokuBoard
+    | cmd == "help"  = do executeCmdHelp; return (sudokuBoard, False)
 
 -- Description: 
     -- Execute the user "load" command.
--- Input:
-    -- sudokuBoard: a SudokuBoard object representing the current sudoku board the user is playing with
 -- Output: 
     -- a IO (SudokuBoard, Bool) object, 
     -- SudokuBoard is the SudokuBoard object after the execution,
     -- Bool value is True if the end of the game is reached, False if not.    
-executeCmdLoad :: SudokuBoard -> IO (SudokuBoard, Bool)
-executeCmdLoad sudokuBoard = do  
+executeCmdLoad :: IO (SudokuBoard, Bool)
+executeCmdLoad = do  
     file <- safeRF
     let givenFile = lines file
         newBlockInfo = take (9) givenFile
@@ -114,7 +113,7 @@ executeCmdSave sudokuBoard = do
 
 -- Description: 
     -- Execute the user "quit" command.
-    -- It prompts the user with an opportunity to confirm this quit action,
+    -- It prompts the user with an opportunity to confirm a quit action,
     -- once being confirmed, it prompts the user with an opportunity to save the current game.
 -- Input:
     -- sudokuBoard: a SudokuBoard object representing the current sudoku board the user is playing with
@@ -133,7 +132,7 @@ executeCmdQuit sudokuBoard = do
     else executeCmdQuit sudokuBoard    
 
 -- Description: 
-    -- Execute the user "save" command.
+    -- It prompts the user with an opportunity to confirm a save action
 -- Input:
     -- sudokuBoard: a SudokuBoard object representing the current sudoku board the user is playing with
 -- Output: 
@@ -235,14 +234,12 @@ executeCmdHint sudokuBoard = do
 -- Description: 
     -- Execute the user "new" command.
     -- Generate a new random sudoku borad to user
--- Input:
-    -- sudokuBoard: a SudokuBoard object representing the current sudoku board the user is playing with
 -- Output: 
     -- a IO (SudokuBoard, Bool) object, 
     -- SudokuBoard is the SudokuBoard object after the execution,
     -- Bool value is True if the end of the game is reached, False if not. Should be False in this case.
-executeCmdNew :: SudokuBoard -> IO (SudokuBoard, Bool)
-executeCmdNew sudokuBoard = do
+executeCmdNew :: IO (SudokuBoard, Bool)
+executeCmdNew = do
     numOfEmptyCells <- askLevel
     newSudokuBoard <- generateRandomSudokoBoard numOfEmptyCells
     printBoard newSudokuBoard
@@ -260,11 +257,23 @@ executeCmdNew sudokuBoard = do
             else askLevel
 
 -- Description: 
-    -- Execute the user "load" command.
--- Input:
-    -- sudokuBoard: a SudokuBoard object representing the current sudoku board the user is playing with
+    -- Execute the user "help" command.
+    -- It prompts the user with the usage of all commands.
 -- Output: 
-    -- a IO (SudokuBoard, Bool) object, 
-    -- SudokuBoard is the SudokuBoard object after the execution, same with the input,
-    -- Bool value is True if the end of the game is reached, False if not.  Should be False in this case.  
-executeCmdHelp = undefined 
+    -- a IO () object, 
+executeCmdHelp :: IO ()
+executeCmdHelp = do
+    putStrLn "\nCommand   Usage\n" 
+    putStrLn "\"move\"  - To fill up a point, once in the loop of move, you" 
+    putStrLn "          would be offered more functionalities, such as redo," 
+    putStrLn "          undo, hint, etc.\n" 
+    putStrLn "\"save\"  - To save the current board of the sudoko game to an" 
+    putStrLn "          indicated file.\n" 
+    putStrLn "\"load\"  - To load a board of sudoko game from an indicated file.\n" 
+    putStrLn "\"quit\"  - To quit the current sudoko game after your confirmation." 
+    putStrLn "          You would also be offered a chance to save the current"
+    putStrLn "          board of the sudoko game to an indicated file.\n" 
+    putStrLn "\"new\"   - Generate a new random sudoku borad, you can chooes the" 
+    putStrLn "          level of difficulty.\n" 
+    putStrLn "\"solve\" - Show a solution of the current sudoku game, without ending" 
+    putStrLn "          up the game, you could still work on your game.\n" 

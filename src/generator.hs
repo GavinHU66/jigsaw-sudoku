@@ -77,7 +77,7 @@ updateBoardBlocks sudokuBoard coords =
 
 generateRandomSudokoBoard :: Int -> IO SudokuBoard
 generateRandomSudokoBoard numOfEmptyCells = do
-    file <- readFile "../maps/map2ans.txt"
+    file <- readFile "../maps/sample_sol.txt"
     let sudokuBoard = fileToBoardConverter file
     sudokuBoard' <- generateRandomCompletedSudokoBoard sudokuBoard
     generateSudokoBoardWithCellsRemoved sudokuBoard' numOfEmptyCells

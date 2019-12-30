@@ -124,12 +124,14 @@ isValidCmd cmd
     | cmd == "quit" = ("quit", True)
     | cmd == "solve" = ("solve", True)
     | cmd == "new" = ("new", True)
+    | cmd == "help" = ("help", True)
     | containSubString cmd "load" = ("Incorrect Command, try again! Do you mean \"load\"?", False)
     | containSubString cmd "move" = ("Incorrect Command, try again! Do you mean \"move\"?, Try again!", False)
     | containSubString cmd "save" = ("Incorrect Command, try again! Do you mean \"save\"?, Try again!", False)
     | containSubString cmd "quit" = ("Incorrect Command, try again! Do you mean \"quit\"?, Try again!", False)
     | containSubString cmd "solve" = ("Incorrect Command, try again! Do you mean \"solve\"?, Try again!", False)
     | containSubString cmd "new" = ("Incorrect Command, try again! Do you mean \"new\"?, Try again!", False)
+    | containSubString cmd "help" = ("Incorrect Command, try again! Do you mean \"help\"?, Try again!", False)
     | otherwise = ("\nCommand is not correct, enter \"help\" if you need help, Try again!", False)
 
 -- Description: 
