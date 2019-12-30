@@ -3,6 +3,9 @@ import Command
 import Cell
 import Utils
 
+-- Description: 
+    -- The entry of the whole game,
+    -- Simply enter main in the terminal after ghci is launched.
 main :: IO ()
 main = do
     file <- safeRF
@@ -10,6 +13,11 @@ main = do
     printBoard sudokuBoard
     gameLoop sudokuBoard False
 
+-- Description: 
+    -- The loop body of the whole game,
+    -- Simply enter main in the terminal after ghci is launched.
+-- Output: 
+    -- a IO () object
 gameLoop :: SudokuBoard -> Bool -> IO ()
 gameLoop sudokuBoard shouldTerminate
     | shouldTerminate = putStrLn "\nGame is quited! Hope to see you later!\n"
