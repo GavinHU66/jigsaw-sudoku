@@ -3,6 +3,8 @@ module Utils where
 import System.Random
 import Data.List
 import Data.Char
+import Control.Exception (try)
+import GHC.IO.Exception (IOException(..))
 import Cell
 
 getCell :: Int -> Int -> SudokuBoard -> Cell
@@ -13,7 +15,7 @@ askCmd :: String -> IO String
 askCmd prompt = 
     do  putStrLn prompt
         cmd' <- getLine
-        let (cmd, valid) = isValidCmd cmd'
+        let (cmd, valid) = isValidCmd $ takeWhile (/=' ') $ dropWhile (== ' ') cmd'
         if valid then return cmd else askCmd cmd
 
 askRow :: String -> IO Int
@@ -84,9 +86,10 @@ updateBoard tarColNo tarRowNo newValue sudokuBoard =
             | tarColNo == colNo && tarRowNo == rowNo = Cell tarColNo tarRowNo blockNo newValue
             | otherwise = Cell colNo rowNo blockNo value
 
-saveToFile :: FilePath -> SudokuBoard -> IO ()
-saveToFile filePath sudokuBoard = 
-    writeFile filePath (unlines $ boardToFileConverter sudokuBoard)
+saveToFile :: SudokuBoard -> IO ()
+saveToFile sudokuBoard = 
+    safeWF content
+    where content = boardToFileConverter sudokuBoard
 
 isGameOver :: SudokuBoard -> Bool
 isGameOver sudokuBoard = 
@@ -169,13 +172,12 @@ constructBoard blockInfo cellInfo =
                 | value == '.' = 0
                 | otherwise = digitToInt value
 
-
 generateRandomNumBetween :: Char -> Char -> IO Int
 generateRandomNumBetween lowerBound upperBound = do
     g <- newStdGen
     return $ digitToInt $ head $ take 1 (randomRs (lowerBound, upperBound) g)
 
-
+generateRandomList :: Int -> Char -> Char -> Bool -> IO [Int]
 generateRandomList n lowerBound upperBound isDistinct = 
     generateRandomList' []
     where
@@ -186,3 +188,37 @@ generateRandomList n lowerBound upperBound isDistinct =
                 if isDistinct then 
                     if (num `elem` xs) then generateRandomList' xs else generateRandomList' (xs++[num])
                 else generateRandomList' (xs++[num])
+
+rExceptionHandler :: Either IOError a -> IO Bool 
+rExceptionHandler (Right _) = do putStrLn "\nfile loaded successfully!"; return True
+rExceptionHandler (Left e) = do printErr e; return False
+
+wExceptionHandler :: Either IOError a -> IO Bool 
+wExceptionHandler (Right _) = return True
+wExceptionHandler (Left e) = do printErr e; return False
+
+printErr :: IOException -> IO ()
+printErr e = 
+    putStrLn $ concat [ 
+        "\nOpps! There is something wrong, filename = ", 
+        show $ getJust $ ioe_filename e, ", error message = ", 
+        show $ ioe_description e]
+         
+safeRF :: IO String
+safeRF = do 
+    putStrLn "\nPlease indicate the file name to be loaded:\ne.g., \"./YourPath/map.txt\", or file name if it\'s in the same folder";
+    filePath' <- getLine
+    let filePath = takeWhile (/=' ') $ dropWhile (== ' ') filePath'
+    valid <- try (readFile filePath) >>= rExceptionHandler
+    if valid then do file <- readFile filePath; return file else safeRF
+
+safeWF :: [String] -> IO ()
+safeWF content = do 
+    putStrLn "\nPlease indicate the file name to be saved"
+    filePath' <- getLine
+    let filePath = takeWhile (/=' ') $ dropWhile (== ' ') filePath'
+    valid <- try (writeFile filePath (unlines content)) >>= wExceptionHandler
+    if valid then do writeFile filePath (unlines content); putStrLn ("Saved successfully to file "++filePath++"!") else safeWF content
+
+getJust :: Maybe a -> a
+getJust (Just a) = a

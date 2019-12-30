@@ -12,17 +12,15 @@ type MoveRecords = [(Int, Int, Int)]
 executeCmd :: String -> SudokuBoard -> IO (SudokuBoard, Bool)
 executeCmd cmd sudokuBoard
     | cmd == "move"  = executeCmdMove sudokuBoard [] [] "Please indicate the location and value."
-    | cmd == "save"  = executeCmdSave sudokuBoard "Please indicate the file name or path to be saved:\ne.g., \"./YourPath/filename\" to save in the indicated directory, or \"(./)filename\" to save in the current directory"
-    | cmd == "load"  = executeCmdLoad sudokuBoard "Please indicate the file name to be loaded:"  
+    | cmd == "save"  = executeCmdSave sudokuBoard
+    | cmd == "load"  = executeCmdLoad sudokuBoard  
     | cmd == "quit"  = executeCmdQuit sudokuBoard
     | cmd == "new"   = executeCmdNew sudokuBoard
     | cmd == "solve" = executeCmdSolve sudokuBoard
         
-executeCmdLoad :: SudokuBoard -> String -> IO (SudokuBoard, Bool)
-executeCmdLoad sudokuBoard prompt = do  
-    putStrLn prompt 
-    filePath <- getLine
-    file <- readFile filePath
+executeCmdLoad :: SudokuBoard -> IO (SudokuBoard, Bool)
+executeCmdLoad sudokuBoard = do  
+    file <- safeRF
     let givenFile = lines file
         newBlockInfo = take (9) givenFile
         initialCellInfo = drop (9) givenFile
@@ -76,12 +74,9 @@ executeCmdMove sudokuBoard movesToBeUndo movesToBeRedo prompt = do
             else executeCmdMove sudokuBoard movesToBeUndo movesToBeRedo "Sorry, there is a conflict!"
     else executeCmdMove sudokuBoard movesToBeUndo movesToBeRedo "Command not correct, try again!"
 
-executeCmdSave :: SudokuBoard -> String -> IO (SudokuBoard, Bool)
-executeCmdSave sudokuBoard prompt = do  
-    putStrLn prompt
-    filePath <- getLine
-    saveToFile filePath sudokuBoard
-    putStrLn ("Saved successfully to file "++filePath++"!")
+executeCmdSave :: SudokuBoard -> IO (SudokuBoard, Bool)
+executeCmdSave sudokuBoard = do  
+    saveToFile sudokuBoard
     return (sudokuBoard, False)
 
 executeCmdQuit :: SudokuBoard -> IO (SudokuBoard, Bool)
@@ -103,10 +98,8 @@ confirmSaveGame sudokuBoard = do
             putStrLn "Quited without saving!"
             return (sudokuBoard, True)
     else if willSave == "y"
-        then do putStrLn "Please indicate the file name to be saved"
-                filePath <- getLine
-                saveToFile filePath sudokuBoard
-                putStrLn ("Quited with the game being saved to file" ++ filePath)
+        then do saveToFile sudokuBoard
+                putStrLn "Quited with the game being saved successfully"
                 return (sudokuBoard, True)
     else confirmSaveGame sudokuBoard
 
