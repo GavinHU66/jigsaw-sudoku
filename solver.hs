@@ -20,9 +20,9 @@ reduceFromList existedVals =
     [ val | val <- [1..9], not $ val `elem` existedVals ]
 
 isFull :: SudokuBoard -> Bool
-isFull sudokuBoard = 
-    isGameOver sudokuBoard
-    -- length (getAllBlankCells sudokuBoard) == 0
+isFull sudokuBoard
+    | (getNumOfBlankCells sudokuBoard ) /= 0 = False
+    | otherwise = isGameOver sudokuBoard   
 
 getFirstBlank :: SudokuBoard -> Cell
 getFirstBlank sudokuBoard = 
@@ -103,7 +103,6 @@ removePossibleValue tryHistory =
 
 mySolverTester :: SudokuBoard -> TryHistory -> Bool -> IO ()
 mySolverTester sudokuBoard tryHistory isNewPoint = do
-
     putStrLn (show tryHistory)
     let allBlankCells = getAllBlankCells sudokuBoard
         numOfBlankCells = length allBlankCells

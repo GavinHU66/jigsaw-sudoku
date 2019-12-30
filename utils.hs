@@ -84,8 +84,8 @@ updateBoard tarColNo tarRowNo newValue sudokuBoard =
             | tarColNo == colNo && tarRowNo == rowNo = Cell tarColNo tarRowNo blockNo newValue
             | otherwise = Cell colNo rowNo blockNo value
 
-saveToFile :: FilePath -> SudokuBoard -> [String] -> IO ()
-saveToFile filePath sudokuBoard blockInfo = 
+saveToFile :: FilePath -> SudokuBoard -> IO ()
+saveToFile filePath sudokuBoard = 
     writeFile filePath (unlines $ boardToFileConverter sudokuBoard)
 
 isGameOver :: SudokuBoard -> Bool
