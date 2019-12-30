@@ -84,7 +84,7 @@ executeCmdMove sudokuBoard movesToBeUndo movesToBeRedo prompt = do
                     if isGameOver newSudokuBoard
                         then do 
                             putStrLn "Congratulations, you finished the game!"
-                            return (newSudokuBoard, True)
+                            return (newSudokuBoard, False)
                     else executeCmdMove newSudokuBoard (movesToBeUndo++[(colNo, rowNo, value)]) movesToBeRedo "Please indicate the location and value."
             else if not $ isBlank sudokuBoard colNo rowNo
                 then executeCmdMove sudokuBoard movesToBeUndo movesToBeRedo "Conflict! There point is already been filled! Choose another point!"

@@ -7,6 +7,7 @@ import Control.Exception (try)
 import GHC.IO.Exception (IOException(..))
 import Cell
 
+
 -- Description: 
     -- Given a column index and a row index, 
     -- get a cell object from a SudokuBoard object.
@@ -20,6 +21,7 @@ getCell :: Int -> Int -> SudokuBoard -> Cell
 getCell colNo rowNo sudokuBoard = 
     (sudokuBoard !! rowNo) !! colNo
     
+
 -- Description: 
     -- ask and return a valid command from user input
     -- if the user input cannot be parsed to a valid command
@@ -34,6 +36,7 @@ askCmd prompt =
         cmd' <- getLine
         let (cmd, valid) = isValidCmd $ takeWhile (/=' ') $ dropWhile (== ' ') cmd'
         if valid then return cmd else askCmd cmd
+
 
 -- Description: 
     -- ask and return a valid row index from user input
@@ -50,6 +53,7 @@ askRow prompt =
         let (rowNo, valid) = isValidNumber 0 8 rowNo'
         if not valid then askRow "Input not accepted, try again!\nSelect a row (0-8):" else return rowNo
 
+
 -- Description: 
     -- ask and return a valid column index from user input
     -- if the user input cannot be parsed to a valid column index
@@ -65,6 +69,7 @@ askCol prompt =
         let (colNo, valid) = isValidNumber 0 8 colNo'
         if not valid then askCol "Input not accepted, try again!\nSelect a column (0-8):" else return colNo
 
+
 -- Description: 
     -- ask and return a valid value from user input
     -- if the user input cannot be parsed to a valid value
@@ -79,6 +84,7 @@ askValue prompt =
         value' <- getLine
         let (value, valid) = isValidNumber 1 9 value'
         if not valid then askValue "Input not accepted, try again!\nType in a value (1-9):" else return value
+
 
 -- Description: 
     -- check if the given input is a valid value
@@ -103,6 +109,7 @@ isValidNumber lowerBound upperBound input
     | input == "quit" = (-1, True)
     | otherwise = (-1, False)
 
+
 -- Description: 
     -- check if the given input is a valid command
 -- Input:
@@ -123,7 +130,7 @@ isValidCmd cmd
     | containSubString cmd "quit" = ("Incorrect Command, try again! Do you mean \"quit\"?, Try again!", False)
     | containSubString cmd "solve" = ("Incorrect Command, try again! Do you mean \"solve\"?, Try again!", False)
     | containSubString cmd "new" = ("Incorrect Command, try again! Do you mean \"new\"?, Try again!", False)
-    | otherwise = ("Command is not correct, enter \"help\" if you need help, Try again!", False)
+    | otherwise = ("\nCommand is not correct, enter \"help\" if you need help, Try again!", False)
 
 -- Description: 
     -- Given a move and a sudoku borad, check if the move is a valid move
@@ -398,9 +405,9 @@ printErr e =
     -- a IO String object 
 safeRF :: IO String
 safeRF = do 
-    putStrLn "\nPlease indicate the file name to be loaded:\ne.g., \"./YourPath/map.txt\", or file name if it\'s in the same folder";
+    putStrLn "\nPlease indicate the file name, e.g., \"sample.txt\", to be loaded:";
     filePath' <- getLine
-    let filePath = takeWhile (/=' ') $ dropWhile (== ' ') filePath'
+    let filePath = "../maps/" ++ (takeWhile (/=' ') $ dropWhile (== ' ') filePath')
     valid <- try (readFile filePath) >>= rExceptionHandler
     if valid then do file <- readFile filePath; return file else safeRF
 
@@ -415,7 +422,7 @@ safeWF :: [String] -> IO ()
 safeWF content = do 
     putStrLn "\nPlease indicate the file name to be saved"
     filePath' <- getLine
-    let filePath = takeWhile (/=' ') $ dropWhile (== ' ') filePath'
+    let filePath = "../maps/" ++ (takeWhile (/=' ') $ dropWhile (== ' ') filePath')
     valid <- try (writeFile filePath (unlines content)) >>= wExceptionHandler
     if valid then do writeFile filePath (unlines content); putStrLn ("Saved successfully to file "++filePath++"!") else safeWF content
 
