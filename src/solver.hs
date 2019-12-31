@@ -172,12 +172,12 @@ mySolver' board tryRecs isNewPoint
                         prevSudokuBoard = updateBoard prevColNo prevRowNo 0 board
                     mySolver' prevSudokuBoard tryRecs False
             else do 
-                let newVal = (last possVals)     no exception
+                let newVal = (last possVals)
                     colNo = getColNo cell
                     rowNo = getRowNo cell
                     newBoard = updateBoard colNo rowNo newVal board
                 mySolver' newBoard (tryRecs++[(colNo, rowNo, newVal, possVals)]) True
-        else do     not a new cell, then we need to remove the failed possible value
+        else do -- not a new cell, then we need to remove the failed possible value
             if length tryRecs == 0 then (False, board)
             else do
                 let tryRecs' = removePossVal tryRecs
@@ -191,7 +191,7 @@ mySolver' board tryRecs isNewPoint
                         mySolver' prevSudokuBoard (init tryRecs') False
                 else do 
                     let newBoard = updateBoard colNo rowNo newVal board
-                        newVal = (last possVals)     no exception
+                        newVal = (last possVals)
                     mySolver' newBoard ((init tryRecs')++[(colNo, rowNo, newVal, possVals)]) True
 
 

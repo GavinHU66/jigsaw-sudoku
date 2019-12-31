@@ -220,7 +220,7 @@ isGameOver board =
             | otherwise  = if isLineValid (board !! rowNo) then isAllRowsValid' (rowNo+1) board else False
         isAllColsValid' colNo board
             | colNo == 9 = True
-            | otherwise  = if isLineValid [ row !! colNo | row <- board ] then isAllColsValid' (colNo+1) board else False
+            | otherwise  = if isLineValid (map (\row -> row !! colNo) board) then isAllColsValid' (colNo+1) board else False
         isAllBlockValid' blockNo board
             | blockNo == 9 = True
             | otherwise    = if and [ val `elem` getBlockVals board blockNo | val <- [1..9]] then isAllBlockValid' (blockNo+1) board else False
@@ -301,6 +301,7 @@ getRowVals :: SudokuBoard -> Int -> [Int]
 getRowVals board rowNo = 
     [ getVal cell | cell <- board !! rowNo, getVal cell /= 0]
 
+
 {-|
     Description: 
         Get all the existed value sof a column on a sudoku board
@@ -325,7 +326,8 @@ getColVals board colNo =
         a list of Int containing the existed valus on the block
 -}
 getBlockVals :: SudokuBoard -> Int -> [Int]
-getBlockVals board blockNo = [ getVal cell | cell <- concat board, (getBlockNo cell == blockNo) && (getVal cell /= 0) ] 
+getBlockVals board blockNo = 
+    [ getVal cell | cell <- concat board, (getBlockNo cell == blockNo) && (getVal cell /= 0) ] 
 
 
 {-|
@@ -370,7 +372,7 @@ fileToBoardConverter file = board
 -}
 boardToFileConverter :: SudokuBoard -> [String]
 boardToFileConverter board = 
-    [ handleBlock row | row <- board ] ++ [ handleVals row | row <- board ]
+    (map (\row -> handleBlock row) board) ++ (map (\row -> handleVals row) board)
     where 
         handleVals row = map (\cell -> if getVal cell == 0 then '.' else intToDigit $ getVal $ cell) row
         handleBlock row = map (\cell -> intToDigit $ getBlockNo $ cell) row
