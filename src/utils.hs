@@ -14,12 +14,12 @@ import Cell
 -- Input:
     -- colNo: the column index
     -- rowNo: the row index
-    -- sudokuBoard: the sudoku board
+    -- board: the sudoku board
 -- Output:
-    -- a cell object
+    -- A Cell object
 getCell :: Int -> Int -> SudokuBoard -> Cell
-getCell colNo rowNo sudokuBoard = 
-    (sudokuBoard !! rowNo) !! colNo
+getCell colNo rowNo board = 
+    (board !! rowNo) !! colNo
     
 
 -- Description: 
@@ -29,7 +29,7 @@ getCell colNo rowNo sudokuBoard =
 -- Input:
     -- prompt: the prompt information given to user
 -- Output:
-    -- a IO String, containing the valid command
+    -- An IO String, containing the valid command
 askCmd :: String -> IO String
 askCmd prompt = 
     do  putStrLn prompt
@@ -39,13 +39,13 @@ askCmd prompt =
 
 
 -- Description: 
-    -- ask and return a valid row index from user input
-    -- if the user input cannot be parsed to a valid row index
-    -- call askRow recursively until getting a valid row index
+    -- ask and return a valid row index from user input,
+    -- if the user input cannot be parsed to a valid row index,
+    -- call askRow recursively until getting a valid row index.
 -- Input:
     -- prompt: the prompt information given to user
 -- Output:
-    -- a IO Int, containing the valid row index
+    -- An IO Int, containing the valid row index.
 askRow :: String -> IO Int
 askRow prompt =
     do  putStrLn prompt
@@ -55,13 +55,13 @@ askRow prompt =
 
 
 -- Description: 
-    -- ask and return a valid column index from user input
-    -- if the user input cannot be parsed to a valid column index
-    -- call askRow recursively until getting a valid column index
+    -- ask and return a valid column index from user input,
+    -- if the user input cannot be parsed to a valid column index,
+    -- call askRow recursively until getting a valid column index.
 -- Input:
     -- prompt: the prompt information given to user
 -- Output:
-    -- a IO Int, containing the valid column index
+    -- An IO Int, containing the valid column index.
 askCol :: String -> IO Int
 askCol prompt =
     do  putStrLn prompt
@@ -71,13 +71,13 @@ askCol prompt =
 
 
 -- Description: 
-    -- ask and return a valid value from user input
-    -- if the user input cannot be parsed to a valid value
-    -- call askRow recursively until getting a valid value
+    -- ask and return a valid value from user input,
+    -- if the user input cannot be parsed to a valid value,
+    -- call askRow recursively until getting a valid value.
 -- Input:
     -- prompt: the prompt information given to user
 -- Output:
-    -- a IO Int, containing the valid value
+    -- An IO Int, containing the valid value.
 askValue :: String -> IO Int
 askValue prompt =
     do  putStrLn prompt
@@ -87,26 +87,16 @@ askValue prompt =
 
 
 -- Description: 
-    -- check if the given input is a valid value
+    -- check if the given input is a valid value.
 -- Input:
     -- lowerBound: the lower bound used for input validation
     -- upperBound: the upper bound used for input validation
     -- input: a string to be tested
 -- Output:
-    -- (Int, Bool) a tuple containing a valid value and a Bool value
+    -- (Int, Bool) a tuple containing a valid value and a Bool value.
 isValidNumber :: Int -> Int -> String -> (Int, Bool)
 isValidNumber lowerBound upperBound input
-    | input == "0" = (0, lowerBound <= 0 && 0 <= upperBound)
-    | input == "1" = (1, lowerBound <= 1 && 1 <= upperBound)
-    | input == "2" = (2, lowerBound <= 2 && 2 <= upperBound)
-    | input == "3" = (3, lowerBound <= 3 && 3 <= upperBound)
-    | input == "4" = (4, lowerBound <= 4 && 4 <= upperBound)
-    | input == "5" = (5, lowerBound <= 5 && 5 <= upperBound)
-    | input == "6" = (6, lowerBound <= 6 && 6 <= upperBound)
-    | input == "7" = (7, lowerBound <= 7 && 7 <= upperBound)
-    | input == "8" = (8, lowerBound <= 8 && 8 <= upperBound)
-    | input == "9" = (9, lowerBound <= 9 && 9 <= upperBound)
-    | input == "quit" = (-1, True)
+    | (length input == 1) && (isDigit $ head $ input) = ((digitToInt $ head $ input), lowerBound <= (digitToInt $ head $ input) && (digitToInt $ head $ input) <= upperBound)
     | otherwise = (-1, False)
 
 
@@ -134,6 +124,7 @@ isValidCmd cmd
     | containSubString cmd "help" = ("Incorrect Command, try again! Do you mean \"help\"?, Try again!", False)
     | otherwise = ("\nCommand is not correct, enter \"help\" if you need help, Try again!", False)
 
+
 -- Description: 
     -- Given a move and a sudoku borad, check if the move is a valid move
     -- which means to check if the move has no conflict in its row, column, and block
@@ -141,151 +132,161 @@ isValidCmd cmd
     -- colNo: the column index
     -- rowNo: the row index
     -- value: the value
-    -- sudokuBoard: the sudoku board
+    -- board: the sudoku board
 -- Output:
     -- return a Bool value denoting the validation of a move on a sudoku board
 isValidMove :: Int -> Int -> Int -> SudokuBoard -> Bool
-isValidMove colNo rowNo value sudokuBoard = 
-    isBlank sudokuBoard colNo rowNo && 
-    isRowValid sudokuBoard rowNo value && 
-    isColValid sudokuBoard colNo value && 
-    isBlockValid sudokuBoard colNo rowNo value
+isValidMove colNo rowNo value board = 
+    isBlank board colNo rowNo && 
+    isRowValid board rowNo value && 
+    isColValid board colNo value && 
+    isBlockValid board colNo rowNo value
+
 
 -- Description: 
     -- update a sudoku board at a specific location, with the given value
 -- Input:
-    -- tarColNo: the column index of the board
-    -- tarRowNo: the row index of the board
+    -- colNo: the column index of the board
+    -- rowNo: the row index of the board
     -- newValue: the new value to be filled in
-    -- sudokuBoard: the sudoku board
+    -- board: the sudoku board
 -- Output:
     -- return a new updated SudokuBoard object
 updateBoard :: Int -> Int -> Int -> SudokuBoard -> SudokuBoard
-updateBoard tarColNo tarRowNo newValue sudokuBoard = 
-    map (\row -> updateRow tarColNo tarRowNo newValue row) sudokuBoard
+updateBoard colNo rowNo newValue board = 
+    map (\row -> updateRow colNo rowNo newValue row) board
     where 
-        updateRow tarColNo tarRowNo newValue row = map (\cell -> updateCell tarColNo tarRowNo newValue cell) row
-        updateCell tarColNo tarRowNo newValue (Cell colNo rowNo blockNo value)
-            | tarColNo == colNo && tarRowNo == rowNo = Cell tarColNo tarRowNo blockNo newValue
-            | otherwise = Cell colNo rowNo blockNo value
+        updateRow colNo rowNo newValue row = map (\cell -> updateCell colNo rowNo newValue cell) row
+        updateCell colNo rowNo newValue (Cell colNo' rowNo' blockNo value)
+            | colNo == colNo' && rowNo == rowNo' = Cell colNo rowNo blockNo newValue
+            | otherwise = Cell colNo' rowNo' blockNo value
+
 
 -- Description: 
     -- save a sudoko borad to a file
 -- Input:
-    -- sudokuBoard: a SudokuBoard object to be saved
+    -- board: a SudokuBoard object to be saved
 -- Output:
-    -- return a IO () object
+    -- return An IO () object
 saveToFile :: SudokuBoard -> IO ()
-saveToFile sudokuBoard = 
-    safeWF content
-    where content = boardToFileConverter sudokuBoard
+saveToFile = 
+    safeWF . boardToFileConverter
+
 
 -- Description: 
     -- Check if the game is over, or to say, complete,
     -- a game is complete if all cells are filled without any confilct.
 -- Input:
-    -- sudokuBoard: a SudokuBoard object to be tested
+    -- board: a SudokuBoard object to be tested
 -- Output:
     -- Return a Bool value denoting the if the game is over.
 isGameOver :: SudokuBoard -> Bool
-isGameOver sudokuBoard = 
+isGameOver board = 
     isAllRowsValid && isAllColsValid && isAllBlockValid
     where 
-        isAllRowsValid = isAllRowsValid' 0 sudokuBoard
-        isAllColsValid = isAllColsValid' 0 sudokuBoard
-        isAllBlockValid = isAllBlockValid' 0 sudokuBoard
-        isAllRowsValid' rowNo sudokuBoard
+        isAllRowsValid = isAllRowsValid' 0 board
+        isAllColsValid = isAllColsValid' 0 board
+        isAllBlockValid = isAllBlockValid' 0 board
+        isAllRowsValid' rowNo board
             | rowNo == 9 = True
-            | otherwise  = if isLineValid (sudokuBoard !! rowNo) then isAllRowsValid' (rowNo+1) sudokuBoard else False
-        isAllColsValid' colNo sudokuBoard
+            | otherwise  = if isLineValid (board !! rowNo) then isAllRowsValid' (rowNo+1) board else False
+        isAllColsValid' colNo board
             | colNo == 9 = True
-            | otherwise  = if isLineValid [ row !! colNo | row <- sudokuBoard ] then isAllColsValid' (colNo+1) sudokuBoard else False
-        isAllBlockValid' blockNo sudokuBoard
+            | otherwise  = if isLineValid [ row !! colNo | row <- board ] then isAllColsValid' (colNo+1) board else False
+        isAllBlockValid' blockNo board
             | blockNo == 9 = True
-            | otherwise    = if and [ val `elem` getBlockVals sudokuBoard blockNo | val <- [1..9]] then isAllBlockValid' (blockNo+1) sudokuBoard else False
+            | otherwise    = if and [ val `elem` getBlockVals board blockNo | val <- [1..9]] then isAllBlockValid' (blockNo+1) board else False
         isLineValid line = and [ x `elem` (map (\cell -> getVal cell) line) | x <- [1..9]] 
+
 
 -- Description: 
     -- Check if the cell is blank given the location and a sudoku board.
 -- Input:
-    -- sudokuBoard: a SudokuBoard object to be tested
+    -- board: a SudokuBoard object to be tested
     -- colNo: the column index of the tested location
     -- rowNo: the row index of the tested location
 -- Output:
     -- Return a Bool value denoting the if cell is a blank cell.
 isBlank :: SudokuBoard -> Int -> Int -> Bool
-isBlank sudokuBoard colNo rowNo = 
-    0 == getVal (getCell colNo rowNo sudokuBoard)
+isBlank board colNo rowNo = 
+    0 == getVal (getCell colNo rowNo board)
+
 
 -- Description: 
     -- Check if a given value can be added to a row.
 -- Input:
-    -- sudokuBoard: a SudokuBoard object to be tested
+    -- board: a SudokuBoard object to be tested
     -- rowNo: the row index of the tested location
     -- value: the value to be added to the row
 -- Output:
     -- Return a Bool value denoting the given value can be added to a row.
 isRowValid :: SudokuBoard -> Int -> Int -> Bool
-isRowValid sudokuBoard rowNo value = 
-    not $ value `elem` (getRowVals sudokuBoard rowNo)
+isRowValid board rowNo value = 
+    not $ value `elem` (getRowVals board rowNo)
+
 
 -- Description: 
     -- Check if a given value can be added to a column.
 -- Input:
-    -- sudokuBoard: a SudokuBoard object to be tested
+    -- board: a SudokuBoard object to be tested
     -- colNo: the column index of the tested location
     -- value: the value to be added to the column
 -- Output:
     -- Return a Bool value denoting the given value can be added to a column.
 isColValid :: SudokuBoard -> Int -> Int -> Bool
-isColValid sudokuBoard colNo value = 
-    not $ value `elem` (getColVals sudokuBoard colNo )
+isColValid board colNo value = 
+    not $ value `elem` (getColVals board colNo )
+
 
 -- Description: 
     -- Check if a given value can be added to a block.
 -- Input:
-    -- sudokuBoard: a SudokuBoard object to be tested
+    -- board: a SudokuBoard object to be tested
     -- colNo: the column index of the tested location
     -- rowNo: the row index of the tested location
     -- value: the value to be added to the block
 -- Output:
     -- Return a Bool value denoting the given value can be added to a block.
 isBlockValid :: SudokuBoard -> Int -> Int -> Int -> Bool
-isBlockValid sudokuBoard colNo rowNo value = 
-    not $ value `elem` (getBlockVals sudokuBoard blockNo)
-        where blockNo = getBlockNo $ (sudokuBoard !! rowNo) !! colNo
+isBlockValid board colNo rowNo value = 
+    not $ value `elem` (getBlockVals board blockNo)
+        where blockNo = getBlockNo $ (board !! rowNo) !! colNo
+
 
 -- Description: 
     -- Get all the existed value sof a row on a sudoku board
 -- Input:
-    -- sudokuBoard: a SudokuBoard object
+    -- board: a SudokuBoard object
     -- rowNo: the row index
 -- Output: 
     -- a list of Int containing the existed valus on the row
 getRowVals :: SudokuBoard -> Int -> [Int]
-getRowVals sudokuBoard rowNo = 
-    [ getVal cell | cell <- sudokuBoard !! rowNo, getVal cell /= 0]
+getRowVals board rowNo = 
+    [ getVal cell | cell <- board !! rowNo, getVal cell /= 0]
+
 
 -- Description: 
     -- Get all the existed value sof a column on a sudoku board
 -- Input:
-    -- sudokuBoard: a SudokuBoard object
+    -- board: a SudokuBoard object
     -- colNo: the column index
 -- Output: 
     -- a list of Int containing the existed valus on the column
 getColVals :: SudokuBoard -> Int -> [Int]
-getColVals sudokuBoard colNo = 
-    [ getVal cell | cell <- map (\row -> row !! colNo) sudokuBoard, getVal cell /= 0 ]
+getColVals board colNo = 
+    [ getVal cell | cell <- map (\row -> row !! colNo) board, getVal cell /= 0 ]
+
 
 -- Description: 
     -- Get all the existed value sof a block on a sudoku board
 -- Input:
-    -- sudokuBoard: a SudokuBoard object
+    -- board: a SudokuBoard object
     -- blockNo: the block index
 -- Output: 
     -- a list of Int containing the existed valus on the block
 getBlockVals :: SudokuBoard -> Int -> [Int]
-getBlockVals sudokuBoard blockNo = [ getVal cell | cell <- concat sudokuBoard, (getBlockNo cell == blockNo) && (getVal cell /= 0) ] 
+getBlockVals board blockNo = [ getVal cell | cell <- concat board, (getBlockNo cell == blockNo) && (getVal cell /= 0) ] 
+
 
 -- Description: 
     -- To check if a given string is a substring of annother given string.
@@ -300,6 +301,7 @@ containSubString wholeStr subStr
     | subStr `isPrefixOf` wholeStr    = True
     | otherwise                       = containSubString (tail wholeStr) subStr
 
+
 -- Description: 
     -- Convert a file to a SudokuBoard object
 -- Input:
@@ -307,24 +309,26 @@ containSubString wholeStr subStr
 -- Output: 
     -- a SudokuBoard object converted from the given file
 fileToBoardConverter :: String -> SudokuBoard
-fileToBoardConverter file = sudokuBoard
+fileToBoardConverter file = board
     where   givenFile = lines file
             blockInfo = take (9) givenFile
             initialNumberInfo = drop (9) givenFile
-            sudokuBoard = constructBoard blockInfo initialNumberInfo
+            board = constructBoard blockInfo initialNumberInfo
+
 
 -- Description: 
     -- Convert a SudokuBoard object to a file
 -- Input:
-    -- sudokuBoard: the SudokuBoard object to be converted
+    -- board: the SudokuBoard object to be converted
 -- Output: 
     -- a file converted from the given SudokuBoard object 
 boardToFileConverter :: SudokuBoard -> [String]
-boardToFileConverter sudokuBoard = 
-    [ handleBlock row | row <- sudokuBoard ] ++ [ handleVals row | row <- sudokuBoard ]
+boardToFileConverter board = 
+    [ handleBlock row | row <- board ] ++ [ handleVals row | row <- board ]
     where 
         handleVals row = map (\cell -> if getVal cell == 0 then '.' else intToDigit $ getVal $ cell) row
         handleBlock row = map (\cell -> intToDigit $ getBlockNo $ cell) row
+
 
 -- Description: 
     -- Construct a SudokuBoard object from the given block information and cell value information
@@ -342,6 +346,7 @@ constructBoard blockInfo cellInfo =
                 | value == '.' = 0
                 | otherwise = digitToInt value
 
+
 -- Description: 
     -- Generate a random Int value.
 -- Input:
@@ -349,10 +354,11 @@ constructBoard blockInfo cellInfo =
     -- upperBound: the upper bound of Int value
 -- Output: 
     -- IO Int object, Int is the random Int values generated.
-generateRandomNumBetween :: Char -> Char -> IO Int
-generateRandomNumBetween lowerBound upperBound = do
+getRandNum :: Int -> Int -> IO Int
+getRandNum lowerBound upperBound = do
     g <- newStdGen
-    return $ digitToInt $ head $ take 1 (randomRs (lowerBound, upperBound) g)
+    return $ digitToInt $ head $ take 1 (randomRs (intToDigit lowerBound, intToDigit upperBound) g)
+
 
 -- Description: 
     -- Generate a random list of Int values.
@@ -363,17 +369,18 @@ generateRandomNumBetween lowerBound upperBound = do
     -- isDistinct: set to be True if you want to generate a list of distince Int values, False otherwise
 -- Output: 
     -- IO [Int] object, [Int] is the random list of Int values generated.
-generateRandomList :: Int -> Char -> Char -> Bool -> IO [Int]
-generateRandomList n lowerBound upperBound isDistinct = 
-    generateRandomList' []
+getRandList :: Int -> Int -> Int -> Bool -> IO [Int]
+getRandList n lowerBound upperBound isDistinct = 
+    getRandList' []
     where
-        generateRandomList' xs
+        getRandList' xs
             | length xs == n = return xs 
             | otherwise = do 
-                num <- generateRandomNumBetween lowerBound upperBound
+                num <- getRandNum lowerBound upperBound
                 if isDistinct then 
-                    if (num `elem` xs) then generateRandomList' xs else generateRandomList' (xs++[num])
-                else generateRandomList' (xs++[num])
+                    if (num `elem` xs) then getRandList' xs else getRandList' (xs++[num])
+                else getRandList' (xs++[num])
+
 
 -- Description: 
     -- Exception Handler for a read file operation
@@ -382,6 +389,7 @@ generateRandomList n lowerBound upperBound isDistinct =
 rExceptionHandler :: Either IOError a -> IO Bool 
 rExceptionHandler (Right _) = do putStrLn "\nfile loaded successfully!"; return True
 rExceptionHandler (Left e) = do printErr e; return False
+
 
 -- Description: 
     -- Exception Handler for a write file operation
@@ -404,7 +412,7 @@ printErr e =
     -- A safe read file function, it handles the exception
     -- happens during reading from a file.
 -- Output: 
-    -- a IO String object 
+    -- An IO String object 
 safeRF :: IO String
 safeRF = do 
     putStrLn "\nPlease indicate the file name, e.g., \"sample.txt\", to be loaded:";
@@ -419,7 +427,7 @@ safeRF = do
 -- Input:
     -- content: the file content to be written
 -- Output: 
-    -- a IO () object
+    -- An IO () object
 safeWF :: [String] -> IO ()
 safeWF content = do 
     putStrLn "\nPlease indicate the file name to be saved"

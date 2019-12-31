@@ -14,6 +14,7 @@ type SudokuBoard = [[Cell]]
 getColNo :: Cell -> Int
 getColNo (Cell colNo _ _ _) = colNo
 
+
 -- Description: 
     -- Get the row index of a given cell.
 -- Input:
@@ -23,6 +24,7 @@ getColNo (Cell colNo _ _ _) = colNo
 getRowNo :: Cell -> Int
 getRowNo (Cell _ rowNo _ _) = rowNo
 
+
 -- Description: 
     -- Get the block index of a given cell.
 -- Input:
@@ -31,6 +33,7 @@ getRowNo (Cell _ rowNo _ _) = rowNo
     -- The block index of a given cell.
 getBlockNo :: Cell -> Int
 getBlockNo (Cell _ _ blockNo _) = blockNo
+
 
 -- Description: 
     -- Get the value of a given cell.

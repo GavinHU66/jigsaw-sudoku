@@ -9,22 +9,36 @@ import Control.Exception (try)
 import GHC.IO.Exception (IOException(..))
 import qualified Data.ByteString as B
 
-main :: IO ()
+-- main :: IO ()
 main = do
-    putStrLn "please enter file path (e.g., \"./YourPath/map.txt\", or file name if it\'s in the same folder): "
-    filePath <- getLine
-    file <- readFile filePath
-    let sudokuBoard = fileToBoardConverter file
-        file2 = boardToFileConverter sudokuBoard
-    putStrLn $ unlines $ file2
 
-printException :: Either IOError a -> IO Bool
-printException (Right _) = do putStrLn "No exception caught"; return True
-printException (Left e) = do  putStrLn $ concat [ "ioe_filename = "
-                                            , show $ ioe_filename e
-                                            , ", ioe_description = "
-                                            , show $ ioe_description e
-                                            , ", ioe_errno = "
-                                            , show $ ioe_errno e
-                                            ]; return False
-myfunc = try (writeFile "/dev/full" " ") >>= printException
+    
+    file <- readFile "../maps/map3.txt"
+    let board = fileToBoardConverter file
+        cList = colList board
+        rList = rowList board
+        bList = blockList board
+    putStrLn (show cList)
+    putStrLn (show rList)
+    putStrLn (show bList)
+    let possVals = getPossVals 2 0 1 cList rList bList
+    putStrLn (show possVals)
+    let cList' = addValLists cList 2 1
+        rList' = addValLists rList 0 1
+        bList' = addValLists bList 1 1
+    putStrLn (show cList')
+    putStrLn (show rList')
+    putStrLn (show bList')
+    let cList'' = removeValLists cList 2 1
+        rList'' = removeValLists rList 0 1
+        bList'' = removeValLists bList 1 1
+    putStrLn (show cList'')
+    putStrLn (show rList'')
+    putStrLn (show bList'')
+
+
+-- addValLists xss idx val = 
+--     [ if i==idx then xs++[val] else xs | (xs, i) <- zip xss [0..8] ]
+
+-- removeValLists xss idx val = 
+--     [ if i==idx then [x|x<-xs,x/= val] else xs | (xs, i) <- zip xss [0..8] ]

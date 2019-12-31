@@ -9,9 +9,9 @@ import Utils
 main :: IO ()
 main = do
     file <- safeRF
-    let sudokuBoard = fileToBoardConverter file
-    printBoard sudokuBoard
-    gameLoop sudokuBoard False
+    let board = fileToBoardConverter file
+    printBoard board
+    gameLoop board False
 
 -- Description: 
     -- The loop body of the whole game,
@@ -19,10 +19,10 @@ main = do
 -- Output: 
     -- a IO () object
 gameLoop :: SudokuBoard -> Bool -> IO ()
-gameLoop sudokuBoard shouldTerminate
+gameLoop board shouldTerminate
     | shouldTerminate = putStrLn "\nGame is quited! Hope to see you later!\n"
     | otherwise = do 
         putStrLn ""
         cmd <- askCmd "Please enter your command, enter \"help\" to view all commands, to get started, enter \"move\"!"
-        (newSudokuBoard, shouldTerminate) <- executeCmd cmd sudokuBoard
-        gameLoop newSudokuBoard shouldTerminate
+        (newBoard, shouldTerminate) <- exeCmd cmd board
+        gameLoop newBoard shouldTerminate
