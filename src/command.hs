@@ -1,3 +1,11 @@
+{- |
+Module      :  Command
+Description :  This module defined actions of commands using in the sudoku game.
+Copyright   :  (c) Hu Qiyun Gavin 2019
+
+Maintainer  :  gavin66@connect.hku.hk
+-}
+
 module Command where
 
 import Data.Char
@@ -9,16 +17,17 @@ import Generator
 
 type MoveRecords = [(Int, Int, Int)]
 
-
--- Description: 
-    -- Parse and execute the user command.
--- Input:
-    -- cmd: the file content to be written
-    -- board: a SudokuBoard object representing the current sudoku board the user is playing with
--- Output: 
-    -- a IO (SudokuBoard, Bool) object, 
-    -- SudokuBoard is the SudokuBoard object after the execution,
-    -- Bool value is True if the end of the game is reached, False if not.
+{-|
+    Description: 
+        Parse and execute the user command.
+    Input:
+        cmd: the file content to be written
+        board: a SudokuBoard object representing the current sudoku board the user is playing with
+    Output: 
+        a IO (SudokuBoard, Bool) object, 
+        SudokuBoard is the SudokuBoard object after the execution,
+        Bool value is True if the end of the game is reached, False if not.
+-}
 exeCmd :: String -> SudokuBoard -> IO (SudokuBoard, Bool)
 exeCmd cmd board
     | cmd == "move"  = exeCmdMove board [] [] "Please press the ENTER key, then indicate the location and value."
@@ -29,13 +38,14 @@ exeCmd cmd board
     | cmd == "solve" = exeCmdSolve board
     | cmd == "help"  = do exeCmdHelp; return (board, False)
 
-
--- Description: 
-    -- Execute the user "load" command.
--- Output: 
-    -- a IO (SudokuBoard, Bool) object, 
-    -- SudokuBoard is the SudokuBoard object after the execution,
-    -- Bool value is True if the end of the game is reached, False if not.    
+{-|
+    Description: 
+        Execute the user "load" command.
+    Output: 
+        a IO (SudokuBoard, Bool) object, 
+        SudokuBoard is the SudokuBoard object after the execution,
+        Bool value is True if the end of the game is reached, False if not.   
+-} 
 exeCmdLoad :: IO (SudokuBoard, Bool)
 exeCmdLoad = do  
     file <- safeRF
@@ -46,15 +56,16 @@ exeCmdLoad = do
     printBoard newBoard
     return (newBoard, False)
 
-
--- Description: 
-    -- Execute the user "load" command.
--- Input:
-    -- board: a SudokuBoard object representing the current sudoku board the user is playing with
--- Output: 
-    -- a IO (SudokuBoard, Bool) object, 
-    -- SudokuBoard is the SudokuBoard object after the execution,
-    -- Bool value is True if the end of the game is reached, False if not. Should be False in this case.
+{-|
+    Description: 
+        Execute the user "load" command.
+    Input:
+        board: a SudokuBoard object representing the current sudoku board the user is playing with
+    Output: 
+        a IO (SudokuBoard, Bool) object, 
+        SudokuBoard is the SudokuBoard object after the execution,
+        Bool value is True if the end of the game is reached, False if not. Should be False in this case.
+-}
 exeCmdMove :: SudokuBoard -> MoveRecords -> MoveRecords -> String -> IO (SudokuBoard, Bool)
 exeCmdMove board undos redos prompt = do
     putStrLn ""
@@ -63,6 +74,7 @@ exeCmdMove board undos redos prompt = do
     preMoveCmd <- getLine
     exeCmdInMoveLoop preMoveCmd board undos redos prompt
 
+exeCmdInMoveLoop :: String -> SudokuBoard -> MoveRecords -> MoveRecords -> String -> IO (SudokuBoard, Bool)
 exeCmdInMoveLoop preMoveCmd board undos redos prompt
     | preMoveCmd == "stop"  = return (board, False)
     | preMoveCmd == "hint"  = do exeCmdHint board; exeCmdMove board undos redos "Please indicate the location and value."
@@ -106,31 +118,33 @@ exeCmdInMoveLoop preMoveCmd board undos redos prompt
         else exeCmdMove board undos redos "Sorry, there is a conflict!"
     | otherwise = exeCmdMove board undos redos "Command not correct, try again!"
 
-
--- Description: 
-    -- Execute the user "save" command.
--- Input:
-    -- board: a SudokuBoard object representing the current sudoku board the user is playing with
--- Output: 
-    -- a IO (SudokuBoard, Bool) object, 
-    -- SudokuBoard is the SudokuBoard object after the execution, same with the input,
-    -- Bool value is True if the end of the game is reached, False if not. Should be False in this case.  Should be False in this case.
+{-|
+    Description: 
+        Execute the user "save" command.
+    Input:
+        board: a SudokuBoard object representing the current sudoku board the user is playing with
+    Output: 
+        a IO (SudokuBoard, Bool) object, 
+        SudokuBoard is the SudokuBoard object after the execution, same with the input,
+        Bool value is True if the end of the game is reached, False if not. Should be False in this case.  Should be False in this case.
+-}
 exeCmdSave :: SudokuBoard -> IO (SudokuBoard, Bool)
 exeCmdSave board = do  
     saveToFile board
     return (board, False)
 
-
--- Description: 
-    -- Execute the user "quit" command.
-    -- It prompts the user with an opportunity to confirm a quit action,
-    -- once being confirmed, it prompts the user with an opportunity to save the current game.
--- Input:
-    -- board: a SudokuBoard object representing the current sudoku board the user is playing with
--- Output: 
-    -- a IO (SudokuBoard, Bool) object, 
-    -- SudokuBoard is the SudokuBoard object after the execution, same with the input,
-    -- Bool value is True if the user finally confirmed, False if not.
+{-|
+    Description: 
+        Execute the user "quit" command.
+        It prompts the user with an opportunity to confirm a quit action,
+        once being confirmed, it prompts the user with an opportunity to save the current game.
+    Input:
+        board: a SudokuBoard object representing the current sudoku board the user is playing with
+    Output: 
+        a IO (SudokuBoard, Bool) object, 
+        SudokuBoard is the SudokuBoard object after the execution, same with the input,
+        Bool value is True if the user finally confirmed, False if not.
+-}
 exeCmdQuit :: SudokuBoard -> IO (SudokuBoard, Bool)
 exeCmdQuit board = do
     putStrLn "Are you sure to quit?(y/n)"
@@ -139,15 +153,16 @@ exeCmdQuit board = do
     else if willQuit == "y" then confirmSaveGame board
     else exeCmdQuit board    
 
-
--- Description: 
-    -- It prompts the user with an opportunity to confirm a save action
--- Input:
-    -- board: a SudokuBoard object representing the current sudoku board the user is playing with
--- Output: 
-    -- a IO (SudokuBoard, Bool) object, 
-    -- SudokuBoard is the SudokuBoard object after the execution, same with the input,
-    -- Bool value is True if the end of the game is reached, False if not. Should be False in this case.   
+{-|
+    Description: 
+        It prompts the user with an opportunity to confirm a save action
+    Input:
+        board: a SudokuBoard object representing the current sudoku board the user is playing with
+    Output: 
+        a IO (SudokuBoard, Bool) object, 
+        SudokuBoard is the SudokuBoard object after the execution, same with the input,
+        Bool value is True if the end of the game is reached, False if not. Should be False in this case.   
+-}
 confirmSaveGame :: SudokuBoard -> IO (SudokuBoard, Bool)
 confirmSaveGame board = do 
     putStrLn "Do you want to save?(y/n)"
@@ -156,16 +171,17 @@ confirmSaveGame board = do
     else if willSave == "y" then do saveToFile board; putStrLn "Quited with the game being saved successfully"; return (board, True)
     else confirmSaveGame board
 
-
--- Description: 
-    -- Execute the user "redo" command.
-    -- It un-dos the fill-cell action if there exists more than zero previous actions.
--- Input:
-    -- board: a SudokuBoard object representing the current sudoku board the user is playing with
--- Output: 
-    -- a IO (SudokuBoard, Bool) object, 
-    -- SudokuBoard is the SudokuBoard object after the execution,
-    -- Bool value is True if the end of the game is reached, False if not. Should be False in this case. 
+{-|
+    Description: 
+        Execute the user "redo" command.
+        It un-dos the fill-cell action if there exists more than zero previous actions.
+    Input:
+        board: a SudokuBoard object representing the current sudoku board the user is playing with
+    Output: 
+        a IO (SudokuBoard, Bool) object, 
+        SudokuBoard is the SudokuBoard object after the execution,
+        Bool value is True if the end of the game is reached, False if not. Should be False in this case. 
+-}
 exeCmdUndo :: SudokuBoard -> MoveRecords -> MoveRecords -> String -> IO (SudokuBoard, Bool)
 exeCmdUndo board undos redos prompt
     | undos == [] = do putStrLn "There is no action to be undo!"; exeCmdMove board undos redos prompt
@@ -176,16 +192,17 @@ exeCmdUndo board undos redos prompt
         printBoard newBoard 
         exeCmdMove newBoard (init undos) (redos++[last undos]) prompt
 
-
--- Description: 
-    -- Execute the user "redo" command.
-    -- It re-dos the fill-cell action if there exists more than zero undo-ed actions.
--- Input:
-    -- board: a SudokuBoard object representing the current sudoku board the user is playing with
--- Output: 
-    -- a IO (SudokuBoard, Bool) object, 
-    -- SudokuBoard is the SudokuBoard object after the execution,
-    -- Bool value is True if the end of the game is reached, False if not. Should be False in this case.
+{-|
+    Description: 
+        Execute the user "redo" command.
+        It re-dos the fill-cell action if there exists more than zero undo-ed actions.
+    Input:
+        board: a SudokuBoard object representing the current sudoku board the user is playing with
+    Output: 
+        a IO (SudokuBoard, Bool) object, 
+        SudokuBoard is the SudokuBoard object after the execution,
+        Bool value is True if the end of the game is reached, False if not. Should be False in this case.
+-}
 exeCmdRedo :: SudokuBoard -> MoveRecords -> MoveRecords -> String -> IO (SudokuBoard, Bool)
 exeCmdRedo board undos redos prompt
     | redos == [] = do putStrLn "There is no action to be redo"; exeCmdMove board undos redos prompt
@@ -196,16 +213,17 @@ exeCmdRedo board undos redos prompt
         printBoard newBoard 
         exeCmdMove newBoard (undos++[last redos]) (init redos) prompt 
 
-
--- Description: 
-    -- Execute the user "solve" command.
-    -- It prompt the user with a solution of the current sudoku board, without ending up the game.
--- Input:
-    -- board: a SudokuBoard object representing the current sudoku board the user is playing with
--- Output: 
-    -- a IO (SudokuBoard, Bool) object, 
-    -- SudokuBoard is the SudokuBoard object after the execution, same with the input,
-    -- Bool value is True if the end of the game is reached, False if not. Should be False in this case.   
+{-|
+    Description: 
+        Execute the user "solve" command.
+        It prompt the user with a solution of the current sudoku board, without ending up the game.
+    Input:
+        board: a SudokuBoard object representing the current sudoku board the user is playing with
+    Output: 
+        a IO (SudokuBoard, Bool) object, 
+        SudokuBoard is the SudokuBoard object after the execution, same with the input,
+        Bool value is True if the end of the game is reached, False if not. Should be False in this case.   
+-}
 exeCmdSolve :: SudokuBoard -> IO (SudokuBoard, Bool)
 exeCmdSolve board = do
     putStrLn "Generating a possible answer, it may take longer time if there is 50+ blank cells, please wait..."
@@ -213,16 +231,17 @@ exeCmdSolve board = do
     do  if hasAnswer then printBoard board' else putStrLn "The current board is unsolveable! Please retry"
     return (board, False)
 
-
--- Description: 
-    -- Execute the user "hint" command.
-    -- It prompt the user with the of possible values could be filled into the next blank cell 
--- Input:
-    -- board: a SudokuBoard object representing the current sudoku board the user is playing with
--- Output: 
-    -- a IO (SudokuBoard, Bool) object, 
-    -- SudokuBoard is the SudokuBoard object after the execution, same with the input,
-    -- Bool value is True if the end of the game is reached, False if not. Should be False in this case.
+{-|
+    Description: 
+        Execute the user "hint" command.
+        It prompt the user with the of possible values could be filled into the next blank cell 
+    Input:
+        board: a SudokuBoard object representing the current sudoku board the user is playing with
+    Output: 
+        a IO (SudokuBoard, Bool) object, 
+        SudokuBoard is the SudokuBoard object after the execution, same with the input,
+        Bool value is True if the end of the game is reached, False if not. Should be False in this case.
+-}
 exeCmdHint :: SudokuBoard -> IO (SudokuBoard, Bool)
 exeCmdHint board = do
     putStrLn ("You can try to fill the cell at column-" ++ [intToDigit $ getColNo $ getFirstBlank $ board] ++ " row-" ++ [intToDigit $ getRowNo $ getFirstBlank $ board] ++ " with the possible number " ++ possibleValsStr)
@@ -230,14 +249,15 @@ exeCmdHint board = do
     where 
         possibleValsStr = map (intToDigit) [ value | value <- getPossVals board $ getFirstBlank $ board ]
 
-
--- Description: 
-    -- Execute the user "new" command.
-    -- Generate a new random sudoku board to user
--- Output: 
-    -- a IO (SudokuBoard, Bool) object, 
-    -- SudokuBoard is the SudokuBoard object after the execution,
-    -- Bool value is True if the end of the game is reached, False if not. Should be False in this case.
+{-|
+    Description: 
+        Execute the user "new" command.
+        Generate a new random sudoku board to user
+    Output: 
+        a IO (SudokuBoard, Bool) object, 
+        SudokuBoard is the SudokuBoard object after the execution,
+        Bool value is True if the end of the game is reached, False if not. Should be False in this case.
+-}
 exeCmdNew :: IO (SudokuBoard, Bool)
 exeCmdNew = do
     numOfEmptyCells <- askLevel
@@ -251,16 +271,17 @@ exeCmdNew = do
             if level == "easy" 
                 then return 30
             else if level == "medium" 
-                then return 45
+                then return 40
             else if level == "hard" 
-                then return 55 
+                then return 50 
             else askLevel
-
--- Description: 
-    -- Execute the user "help" command.
-    -- It prompts the user with the usage of all commands.
--- Output: 
-    -- a IO () object, 
+{-|
+    Description: 
+        Execute the user "help" command.
+        It prompts the user with the usage of all commands.
+    Output: 
+        a IO () object
+-}
 exeCmdHelp :: IO ()
 exeCmdHelp = do
     putStrLn "\nCommand   Usage\n" 

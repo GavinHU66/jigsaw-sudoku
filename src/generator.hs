@@ -1,43 +1,55 @@
+{- |
+Module      :  Generator
+Description :  This module defined methods of generating a random sudoku board
+Copyright   :  (c) Hu Qiyun Gavin 2019
+
+Maintainer  :  gavin66@connect.hku.hk
+-}
+    
 module Generator where
 
 import Cell
 import Utils
 
--- Description: 
-    -- Generate a random sudoku board.
--- Input:
-    -- n: the number of empty cells in the randomly 
-    --    generated sudoku board, indicating the level of difficulty
--- Output: 
-    -- a IO SudokuBoard object, representing the 
-    -- newly generated random sudoku board.
+{-|   
+    Description: 
+        Generate a random sudoku board.
+    Input:
+        n: the number of empty cells in the randomly 
+           generated sudoku board, indicating the level of difficulty
+    Output: 
+        a IO SudokuBoard object, representing the 
+        newly generated random sudoku board.
+-}
 randBoard :: Int -> IO SudokuBoard
 randBoard n = do
     file <- readFile "../maps/sample_sol.txt"
     let board = fileToBoardConverter file
     board' <- randFullBoard board
     emptyBoardCells board' n
-
--- Description: 
-    -- Generate a full random sudoku board.
--- Input:
-    -- board: the sudoku board to be filled with
--- Output: 
-    -- a IO SudokuBoard object, representing the newly 
-    -- generated random sudoku board.
+{-|
+    Description: 
+        Generate a full random sudoku board.
+    Input:
+        board: the sudoku board to be filled with
+    Output: 
+        a IO SudokuBoard object, representing the newly 
+        generated random sudoku board.
+-}
 randFullBoard :: SudokuBoard -> IO SudokuBoard
 randFullBoard board = do 
     randList <- getRandList 9 1 9 True
     return $ swicthVals board randList
-
--- Description: 
-    -- Swtich values in a sudoku board.
--- Input:
-    -- board: the sudoku board to be filled with
-    -- randList: indicate the rule for switching
--- Output: 
-    -- a IO SudokuBoard object, representing the newly 
-    -- generated random sudoku board.
+{-|
+    Description: 
+        Swtich values in a sudoku board.
+    Input:
+        board: the sudoku board to be filled with
+        randList: indicate the rule for switching
+    Output: 
+        a IO SudokuBoard object, representing the newly 
+        generated random sudoku board.
+-}
 swicthVals :: SudokuBoard -> [Int] -> SudokuBoard
 swicthVals board randList = 
     map (\row -> updateRow row) board
@@ -45,15 +57,16 @@ swicthVals board randList =
         updateRow row = map (\cell -> updateCell cell) row
         updateCell (Cell colNo rowNo blockNo value) = Cell colNo rowNo blockNo (randList !! (value-1))
     
-
--- Description: 
-    -- Fill a sudoku board with n zero values randomly.
--- Input:
-    -- board: the sudoku board to be filled with
-    -- n: the number of empty cells
--- Output: 
-    -- a IO SudokuBoard object, representing the newly 
-    -- generated random sudoku board.
+{-|
+    Description: 
+        Fill a sudoku board with n zero values randomly.
+    Input:
+        board: the sudoku board to be filled with
+        n: the number of empty cells
+    Output: 
+        a IO SudokuBoard object, representing the newly 
+        generated random sudoku board.
+-}
 emptyBoardCells :: SudokuBoard -> Int -> IO SudokuBoard
 emptyBoardCells board n = do
     coords <- randomCoords n
@@ -63,13 +76,14 @@ emptyBoardCells board n = do
                 | (colNo, rowNo) `elem` coords = Cell colNo rowNo blockNo 0
                 | otherwise = Cell colNo rowNo blockNo value
   
-
--- Description: 
-    -- Generate a random list of distinct coordinates.
--- Input:
-    -- n: the number of coordinates in the randomly generated coordinates
--- Output: 
-    -- a IO [(Int, Int)] object, representing the newly generated random list of distinct coordinates.
+{-|
+    Description: 
+        Generate a random list of distinct coordinates.
+    Input:
+        n: the number of coordinates in the randomly generated coordinates
+    Output: 
+        a IO [(Int, Int)] object, representing the newly generated random list of distinct coordinates.
+-}
 randomCoords :: Int -> IO [(Int, Int)]
 randomCoords n = 
     randomCoords' n []
@@ -82,7 +96,7 @@ randomCoords n =
                 if ((colNo, rowNo) `elem` xs) then randomCoords' n xs else randomCoords' n (xs++[(colNo, rowNo)])
 
 
-{-
+{-|
     Below is an another algorithm to generate a new random sudoku board,
     with a random value and block pattern, due to the time-comsuming property
     of testing a newly generated random sudoku board is solveable, it is not
@@ -131,8 +145,8 @@ randomCoords n =
         newSodukoBoard <- fillEmptyBoard n emptySodukoBoard
 
         return newSodukoBoard
-        -- let (hasAnswer, board) = mySolver newSodukoBoard
-        -- if hasAnswer then return newSodukoBoard else generateRandomBoard n
+            let (hasAnswer, board) = mySolver newSodukoBoard
+            if hasAnswer then return newSodukoBoard else generateRandomBoard n
 
     fillEmptyBoard :: Int -> SudokuBoard -> IO SudokuBoard    
     fillEmptyBoard n board
